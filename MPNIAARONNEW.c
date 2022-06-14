@@ -372,8 +372,6 @@ printBoard(game game)
          186,
          186,
          186,
-         186,
-         186,
          186);
 
   printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",

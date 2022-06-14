@@ -54,16 +54,12 @@ typedef struct play {
 int
 elemExists(posSet player, position token)
 {
-  int i, playerposcount, row, col;
-
-  playerposcount = player.posCount;
-  row = token.row;
-  col = token.col;
+  int i;
 
   // Loop through the player's positions
-  for (i = 0; i < playerposcount; i++) {
-    if (player.posList[i].row == row) {
-      if (player.posList[i].col == col) {
+  for (i = 0; i < player.posCount; i++) {
+    if (player.posList[i].row == token.row) {
+      if (player.posList[i].col == token.col) {
         // If the position is found, return the index
         return i;
       }
@@ -111,12 +107,11 @@ posSet
 setpositionUnion(posSet A, position B)
 {
   posSet AB;
-  int i, count = 0;
+  int i;
 
   AB.posCount = 0;
-  A.posCount = count;
 
-  for (i = 0; i < count; i++) {
+  for (i = 0; i < A.posCount; i++) {
     if (elemExists(AB, A.posList[i]) == -1) {
       AB.posList[AB.posCount] = A.posList[i];
       AB.posCount += 1;
@@ -142,20 +137,18 @@ posSet
 setUnion(posSet A, posSet B)
 {
   posSet AB;
-  int i, countA = 0, countB = 0;
+  int i;
 
   AB.posCount = 0;
-  A.posCount = countA;
-  B.posCount = countB;
 
-  for (i = 0; i < countA; i++) {
+  for (i = 0; i < A.posCount; i++) {
     if (elemExists(AB, A.posList[i]) == -1) {
       AB.posList[AB.posCount] = A.posList[i];
       AB.posCount += 1;
     }
   }
 
-  for (i = 0; i < countB; i++) {
+  for (i = 0; i < B.posCount; i++) {
     if (elemExists(AB, B.posList[i]) == -1) {
       AB.posList[AB.posCount] = B.posList[i];
       AB.posCount += 1;
@@ -180,12 +173,11 @@ setDiff(posSet A, posSet B)
   // <REPHRASE FOR DESCRIPTION>
 
   posSet AminusB;
-  int i, count = 0;
+  int i;
 
   AminusB.posCount = 0;
-  A.posCount = count;
 
-  for (i = 0; i < count; i++) {
+  for (i = 0; i < A.posCount; i++) {
     if (elemExists(B, A.posList[i]) == -1) {
       AminusB.posList[AminusB.posCount] = A.posList[i];
       AminusB.posCount += 1;
@@ -210,12 +202,11 @@ setpositionDiff(posSet A, position B)
   // not in the list. <REPHRASE FOR DESCRIPTION>
 
   posSet AminusB;
-  int i, count = 0;
+  int i;
 
   AminusB.posCount = 0;
-  A.posCount = count;
 
-  for (i = 0; i < count; i++) {
+  for (i = 0; i < A.posCount; i++) {
     if (B.row != A.posList[i].row) {
       if (B.col != A.posList[i].col) {
         AminusB.posList[AminusB.posCount] = A.posList[i];
@@ -237,17 +228,16 @@ setpositionDiff(posSet A, position B)
 sets
 initSets()
 {
-  int row, col, i, poscountP, poscountS, poscountE, poscountY;
+  int row, col, i;
   sets allSet;
 
   // Initialize Set P (All Positions)
   allSet.P.posCount = 0;
   for (row = 1; row <= MAX_ROWS; row++) {
     for (col = 1; col <= MAX_COLS; col++) {
-      poscountP = allSet.P.posCount;
-      allSet.P.posList[poscountP].row = row;
-      allSet.P.posList[poscountP].col = col;
-      poscountP += 1;
+      allSet.P.posList[allSet.P.posCount].row = row;
+      allSet.P.posList[allSet.P.posCount].col = col;
+      allSet.P.posCount += 1;
     }
   }
 
@@ -256,10 +246,9 @@ initSets()
   for (row = 1; row <= MAX_ROWS; row++) {
     for (col = 1; col <= MAX_COLS; col++) {
       if (row % 2 == col % 2) {
-        poscountS = allSet.S.posCount;
-        allSet.S.posList[poscountS].row = row;
-        allSet.S.posList[poscountS].col = col;
-        poscountS += 1;
+        allSet.S.posList[allSet.S.posCount].row = row;
+        allSet.S.posList[allSet.S.posCount].col = col;
+        allSet.S.posCount += 1;
       }
     }
   }
@@ -267,22 +256,20 @@ initSets()
   // Initialize Set E (Player Alpha Positions)
   // The Alpha set includes free positions in rows 6 and 7
   allSet.E.posCount = 0;
-  for (i = 0; i < poscountS; i++) {
+  for (i = 0; i < allSet.S.posCount; i++) {
     if (allSet.S.posList[i].row >= 6) {
-      poscountE = allSet.E.posCount;
-      allSet.E.posList[poscountE] = allSet.S.posList[i];
-      poscountE += 1;
+      allSet.E.posList[allSet.E.posCount] = allSet.S.posList[i];
+      allSet.E.posCount += 1;
     }
   }
 
   // Initialize Set Y (Player Beta Positions)
   // The Beta set includes free positions in rows 1 and 2
   allSet.Y.posCount = 0;
-  for (i = 0; i < poscountS; i++) {
+  for (i = 0; i < allSet.S.posCount; i++) {
     if (allSet.S.posList[i].row <= 2) {
-      poscountY = allSet.Y.posCount;
-      allSet.Y.posList[poscountY] = allSet.S.posList[i];
-      poscountY += 1;
+      allSet.Y.posList[allSet.Y.posCount] = allSet.S.posList[i];
+      allSet.Y.posCount += 1;
     }
   }
 
@@ -331,104 +318,86 @@ NextPlayerMove(play game, position next, position prev)
 
   // Check if the next position is free for Alpha's turn
   if (game.aTurn && elemExists(game.gameboard.Alpha, prev) >= 0 &&
-      prev.row == next.row + 1) {
-    if (next.col == prev.col || next.col == prev.col + 1 ||
-        prev.col == next.col + 1)
-      game.ok = !(game.ok);
+      prev.row == next.row + 1 &&
+      (next.col == prev.col || next.col == prev.col + 1 ||
+       prev.col == next.col + 1)) {
+    game.ok = !(game.ok);
   }
   else if (game.aTurn)
     printf("\nThat move is invalid!\n\n");
 
   // Check if the next position is free for Beta's turn
   if (!(game.aTurn) && elemExists(game.gameboard.Beta, prev) >= 0 &&
-      next.row == prev.row + 1) {
-    if (next.col == prev.col || next.col == prev.col + 1 ||
-        prev.col == next.col + 1)
-      game.ok = !(game.ok);
+      next.row == prev.row + 1 &&
+      (next.col == prev.col || next.col == prev.col + 1 ||
+       prev.col == next.col + 1)) {
+    game.ok = !(game.ok);
   }
   else if (!(game.aTurn))
     printf("\nThat move is invalid!\n\n");
 
   // Prints the updated position of Alpha and set Beta's turn
-  if (game.ok && game.aTurn) {
-    if (elemExists(game.gameboard.Free, next) >= 0) {
-      printf("\nPlayer Alpha's position: (%d, %d) --> (%d, %d)\n\n",
-             prev.row,
-             prev.col,
-             next.row,
-             next.col);
-      game.gameboard.Alpha =
-          setpositionUnion(setpositionDiff(game.gameboard.Alpha, prev), next);
-      game.aTurn = !(game.aTurn);
-      game.ok = !(game.ok);
-    }
+  if (game.ok && game.aTurn && elemExists(game.gameboard.Free, next) >= 0) {
+    printf("\nPlayer Alpha's position: (%d, %d) --> (%d, %d)\n\n",
+           prev.row,
+           prev.col,
+           next.row,
+           next.col);
+    game.gameboard.Alpha =
+        setpositionUnion(setpositionDiff(game.gameboard.Alpha, prev), next);
+    game.aTurn = !(game.aTurn);
+    game.ok = !(game.ok);
   }
 
   // Prints the updated position of Beta and set Alpha's turn
-  if (game.ok && !(game.aTurn)) {
-    if (elemExists(game.gameboard.Free, next) >= 0) {
-      printf("\nPlayer Beta's position: (%d, %d) --> (%d, %d)\n\n",
-             prev.row,
-             prev.col,
-             next.row,
-             next.col);
-      game.gameboard.Beta =
-          setpositionUnion(setpositionDiff(game.gameboard.Beta, prev), next);
-      game.aTurn = !(game.aTurn);
-      game.ok = !(game.ok);
-    }
+  if (game.ok && !(game.aTurn) && elemExists(game.gameboard.Free, next) >= 0) {
+    printf("\nPlayer Beta's position: (%d, %d) --> (%d, %d)\n\n",
+           prev.row,
+           prev.col,
+           next.row,
+           next.col);
+    game.gameboard.Beta =
+        setpositionUnion(setpositionDiff(game.gameboard.Beta, prev), next);
+    game.aTurn = !(game.aTurn);
+    game.ok = !(game.ok);
   }
 
   // If the position is not found in the free spaces set (S), then
   // the move made by Alpha is invalid
-  if (game.ok && game.aTurn) {
-    if (elemExists(game.gameboard.Beta, next) >= 0) {
-      if (elemExists(game.playset.S, next) == -1) {
-        printf("\nThat move is invalid!\n\n");
-        game.ok = !(game.ok);
-      }
-    }
+  if (game.ok && game.aTurn && elemExists(game.gameboard.Beta, next) >= 0 &&
+      elemExists(game.playset.S, next) == -1) {
+    printf("\nThat move is invalid!\n\n");
+    game.ok = !(game.ok);
   }
 
   // If Alpha moves to a space occupied by Beta, Alpha takes Beta's piece
-  if (game.ok && game.aTurn) {
-    if (elemExists(game.gameboard.Beta, next) >= 0) {
-      if (elemExists(game.playset.S, next) >= 0) {
-        printf(
-            "\nOh no! Player Beta's piece was consumed by Player Alpha!\n\n");
-        game.gameboard.Beta = setpositionDiff(game.gameboard.Beta, next);
-        game.gameboard.Alpha =
-            setpositionUnion(setpositionDiff(game.gameboard.Alpha, prev), next);
-        game.aTurn = !(game.aTurn);
-        game.ok = !(game.ok);
-      }
-    }
+  if (game.ok && game.aTurn && elemExists(game.gameboard.Beta, next) >= 0 &&
+      elemExists(game.playset.S, next) >= 0) {
+    printf("\nOh no! Player Beta's piece was consumed by Player Alpha!\n\n");
+    game.gameboard.Beta = setpositionDiff(game.gameboard.Beta, next);
+    game.gameboard.Alpha =
+        setpositionUnion(setpositionDiff(game.gameboard.Alpha, prev), next);
+    game.aTurn = !(game.aTurn);
+    game.ok = !(game.ok);
   }
 
   // If the position is not found in the free spaces set (S), then
   // the move made by Beta is invalid
-  if (game.ok && !(game.aTurn)) {
-    if (elemExists(game.gameboard.Alpha, next) >= 0) {
-      if (elemExists(game.playset.S, next) == -1) {
-        printf("\n That move is invalid! \n\n");
-        game.ok = !(game.ok);
-      }
-    }
+  if (game.ok && !(game.aTurn) && elemExists(game.gameboard.Alpha, next) >= 0 &&
+      elemExists(game.playset.S, next) == -1) {
+    printf("\n That move is invalid! \n\n");
+    game.ok = !(game.ok);
   }
 
   // If Beta moves to a space occupied by Alpha, Beta takes Alpha's piece
-  if (game.ok && !(game.aTurn)) {
-    if (elemExists(game.gameboard.Alpha, next) >= 0) {
-      if (elemExists(game.playset.S, next) >= 0) {
-        printf(
-            "\nOh no! Player Alpha's piece was consumed by Player Beta!\n\n");
-        game.gameboard.Alpha = setpositionDiff(game.gameboard.Alpha, next);
-        game.gameboard.Beta =
-            setpositionUnion(setpositionDiff(game.gameboard.Beta, prev), next);
-        game.aTurn = !(game.aTurn);
-        game.ok = !(game.ok);
-      }
-    }
+  if (game.ok && !(game.aTurn) && elemExists(game.gameboard.Alpha, next) >= 0 &&
+      elemExists(game.playset.S, next) >= 0) {
+    printf("\nOh no! Player Alpha's piece was consumed by Player Beta!\n\n");
+    game.gameboard.Alpha = setpositionDiff(game.gameboard.Alpha, next);
+    game.gameboard.Beta =
+        setpositionUnion(setpositionDiff(game.gameboard.Beta, prev), next);
+    game.aTurn = !(game.aTurn);
+    game.ok = !(game.ok);
   }
 
   return game;
@@ -630,7 +599,7 @@ main()
                  .posList[inputHandler(1, game.gameboard.Beta.posCount) - 1];
     }
 
-    printf("Where would you like to move your piece?\n");
+    printf("\nWhere would you like to move your piece?\n");
     printf("x: ");
     next.row = inputHandler(1, 7);
     printf("y: ");
