@@ -207,11 +207,13 @@ setpositionDiff(posSet A, position B)
   AminusB.posCount = 0;
 
   for (i = 0; i < A.posCount; i++) {
-    if (B.row != A.posList[i].row) {
-      if (B.col != A.posList[i].col) {
-        AminusB.posList[AminusB.posCount] = A.posList[i];
-        AminusB.posCount += 1;
-      }
+    if (B.row == A.posList[i].row && B.col == A.posList[i].col) {
+      // If the position is found, do not add it to the set
+      continue;
+    }
+    else {
+      AminusB.posList[AminusB.posCount] = A.posList[i];
+      AminusB.posCount += 1;
     }
   }
 
@@ -605,7 +607,7 @@ main()
     printf("y: ");
     next.col = inputHandler(1, 5);
 
-    game = NextPlayerMove(game, prev, next);
+    game = NextPlayerMove(game, next, prev);
     game = GameOver(game);
   }
 
