@@ -15,7 +15,6 @@ typedef struct position {
 } position;
 
 typedef struct posSet {
-  // Player can only move around on 18 coordinates of the board
   int posCount; // Total number of pieces
   position posList[36];
 } posSet;
