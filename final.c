@@ -295,7 +295,7 @@ initGame()
   game.gameboard.Alpha = game.playset.E;
   game.gameboard.Beta = game.playset.Y;
   game.gameboard.Free =
-      setDiff(game.playset.S, setUnion(game.playset.Y, game.playset.E));
+      setDiff(game.playset.P, setUnion(game.playset.Y, game.playset.E));
 
   return game;
 }
