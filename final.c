@@ -41,7 +41,7 @@ typedef struct play {
   board gameboard;
 } play;
 
-// SYSTEM CHECKERS - <Description>
+// SYSTEM CHECKERS - Functions that check on the system states
 
 /**
  * @Description Checks if a player's position on the board exists
@@ -72,9 +72,9 @@ elemExists(posSet player, position token)
 /**
  * @Description Checks for validity of user's input
  *
- * @param min
- * @param max
- * @return int
+ * @param min Lower limit of valid input
+ * @param max Upper limit of valid input
+ * @return int Input is returned if number is valid
  */
 int
 inputHandler(int min, int max)
@@ -93,14 +93,14 @@ inputHandler(int min, int max)
   return input;
 }
 
-// SET RELATIONSHIP FUNCTIONS - <Description>
+// SET RELATIONSHIP FUNCTIONS - Functions that deal with the correlation of the sets
 
 /**
- * @Description
+ * @Description Union of the set of all possible positions of Player Alpha and actual set of positions of Player Beta
  *
  * @param A All possible positions of Player Alpha
  * @param B Actual set of positions of Player Beta
- * @return
+ * @return AB Returns the union of both sets
  */
 posSet
 setpositionUnion(posSet A, position B)
@@ -126,11 +126,11 @@ setpositionUnion(posSet A, position B)
 }
 
 /**
- * @Description
+ * @Description Union of the set of all possible positions between Player Alpha and Player Beta
  *
- * @param A
- * @param B
- * @return posSet
+ * @param A All possible positions of Player Alpha
+ * @param B All possible positions of Player Beta
+ * @return posSet Returns the set of positions
  */
 posSet
 setUnion(posSet A, posSet B)
@@ -158,18 +158,15 @@ setUnion(posSet A, posSet B)
 }
 
 /**
- * @Description
+ * @Description Calculates the difference of the first parameter of the function. Analyzes both sets before grouping all positions that are only found in A.
  *
- * @param A
- * @param B
- * @return posSet
+ * @param A All possible positions of Player Alpha
+ * @param B All possible positions of Player Beta
+ * @return posSet Returns the set of positions
  */
 posSet
 setDiff(posSet A, posSet B)
 {
-  // Gets the difference of the first parameter of the function. It compares the
-  // two sets and groups all positions found in A that are not found in B.
-  // <REPHRASE FOR DESCRIPTION>
 
   posSet AminusB;
   int i;
@@ -187,18 +184,15 @@ setDiff(posSet A, posSet B)
 }
 
 /**
- * @Description
+ * @Description Calculates the difference of the list of positions and the position set. Analyzes the two and groups all positions that are found in A and not on the list.
  *
- * @param A
- * @param B
- * @return posSet
+ * @param A All possible positions of Player Alpha
+ * @param B Actual set of positions of Player Beta
+ * @return posSet Returns the set of positions
  */
 posSet
 setpositionDiff(posSet A, position B)
 {
-  // Gets the difference of the position set and a list of positions.
-  // It compares the two and groups all positions found in A that are
-  // not in the list. <REPHRASE FOR DESCRIPTION>
 
   posSet AminusB;
   int i;
@@ -219,12 +213,12 @@ setpositionDiff(posSet A, position B)
   return AminusB;
 }
 
-// INITIALIZATION - <Description>
+// INITIALIZATION - Sets are initialized with their corresponding values before the game starts
 
 /**
  * @Description Initialize sets with their default values for the game
  *
- * @return sets
+ * @return sets Returns the initialized sets
  */
 sets
 initSets()
@@ -280,7 +274,7 @@ initSets()
 /**
  * @Description Initializes all game values with its default setting
  *
- * @return play
+ * @return play 
  */
 play
 initGame()
@@ -300,15 +294,15 @@ initGame()
   return game;
 }
 
-// GAME EVENT FUNCTIONS - <Description>
+// GAME EVENT FUNCTIONS - Functions that deal with the actual game movements
 
 /**
- * @Description
+ * @Description Checks to see if a position is free during a Player's turn
  *
  * @param game
- * @param next
- * @param prev
- * @return play
+ * @param next Succeeding move
+ * @param prev Previous move
+ * @return play 
  */
 play
 NextPlayerMove(play game, position next, position prev)
@@ -405,7 +399,7 @@ NextPlayerMove(play game, position next, position prev)
 }
 
 /**
- * @Description
+ * @Description Checks Player Alpha and Player Beta's pieces and the movement from their starting point to decide who wins the game
  *
  * @param game
  * @return play
