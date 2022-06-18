@@ -1,4 +1,4 @@
 # checkers
 CCDSTRU Machine Project
 
-By: Patrick Desiderio, Paula Pacheco, and Aein Reyes
+By: Patrick Desiderio, Paula Pacheco, and Aeinnor Reyes
