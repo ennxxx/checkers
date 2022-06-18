@@ -19,18 +19,18 @@ typedef struct posSet {
   position posList[36];
 } posSet;
 
+typedef struct sets {
+  posSet P; // All positions on the board
+  posSet S; // Diagonally placed positions
+  posSet E; // Starting position for Alpha
+  posSet Y; // Starting position for Beta
+} sets;
+
 typedef struct board {
   posSet Alpha; // Positions for Alpha
   posSet Beta;  // Positions for Beta
   posSet Free;  // Empty positions at the beginning of the game
 } board;
-
-typedef struct sets {
-  posSet P; // All positions on the board
-  posSet S; // Free spaces (Spaces that Alpha and Beta can move to)
-  posSet E; // Starting position for Alpha
-  posSet Y; // Starting position for Beta
-} sets;
 
 typedef struct play {
   int aTurn;    // Passing turn to a player
@@ -292,6 +292,7 @@ initGame()
   game.aTurn = 1;
   game.over = 0;
   game.ok = 0;
+  game.winner = ' ';
   game.playset = initSets();
 
   game.gameboard.Alpha = game.playset.E;
