@@ -5,50 +5,105 @@
  * Reyes, Aeinnor A.
  **/
 
+#include "S11.9_DesiderioPachecoReyes.h"
 #include <stdio.h>
-#define MAX_ROWS 7
-#define MAX_COLS 5
 
-typedef struct position {
-  int row;
-  int col;
-} position;
+int
+main()
+{
+  int i;
+  play game;
+  position prev, next;
 
-typedef struct posSet {
-  int posCount; // Total number of pieces
-  position posList[36];
-} posSet;
+  game = initGame();
 
-typedef struct board {
-  posSet Alpha; // Positions for Alpha
-  posSet Beta;  // Positions for Beta
-  posSet Free;  // Empty positions at the beginning of the game
-} board;
+  while (!game.over) {
 
-typedef struct sets {
-  posSet P; // All positions on the board
-  posSet S; // Free spaces (Spaces that Alpha and Beta can move to)
-  posSet E; // Starting position for Alpha
-  posSet Y; // Starting position for Beta
-} sets;
+    displayBoard(game);
 
-typedef struct play {
-  int aTurn;    // Passing turn to a player
-  int over;     // For a game to end
-  int ok;       // To determine whether a move is playable
-  char winner;  // To determine whether Alpha or Beta wins
-  sets playset; // To move the pieces of the game
-  board gameboard;
-} play;
+    // Player Alpha game set
+    if (game.aTurn == 1) {
+      printf("Player Alpha's Turn!\n\n");
+      printf("Choose a piece to move:\n");
+      for (i = 0; i < game.gameboard.Alpha.posCount; i++) {
+        printf("[%d] (%d, %d)\n",
+               i + 1,
+               game.gameboard.Alpha.posList[i].row,
+               game.gameboard.Alpha.posList[i].col);
+      }
+      printf("\nInput: ");
+      prev = game.gameboard.Alpha
+                 .posList[inputHandler(1, game.gameboard.Alpha.posCount) - 1];
+    }
+
+    // Player Beta game set
+    if (game.aTurn != 1) {
+      printf("Player Beta's Turn!\n\n");
+      printf("Choose a piece to move:\n");
+      for (i = 0; i < game.gameboard.Beta.posCount; i++) {
+        printf("[%d] (%d, %d)\n",
+               i + 1,
+               game.gameboard.Beta.posList[i].row,
+               game.gameboard.Beta.posList[i].col);
+      }
+      printf("\nInput: ");
+      prev = game.gameboard.Beta
+                 .posList[inputHandler(1, game.gameboard.Beta.posCount) - 1];
+    }
+
+    printf("\nWhere would you like to move your piece?\n");
+    printf("x: ");
+    next.row = inputHandler(1, 7);
+    printf("y: ");
+    next.col = inputHandler(1, 5);
+
+    game = NextPlayerMove(game, next, prev);
+    game = GameOver(game);
+  }
+
+  if (game.winner == 'A') {
+    printf("\n\nCongratulations! Player Alpha wins!");
+  }
+
+  if (game.winner == 'B') {
+    printf("\n\nCongratulations! Player Beta wins!");
+  }
+
+  return 0;
+}
 
 // SYSTEM CHECKERS - Functions that check on the system states
+
+/**
+ * @Description Checks for validity of user's input
+ *
+ * @param min Lower limit of valid input
+ * @param max Upper limit of valid input
+ * @return input is returned if number is valid
+ */
+int
+inputHandler(int min, int max)
+{
+  int input;
+  int valid = 0;
+
+  while (!valid) {
+    scanf("%d", &input);
+    if (input >= min && input <= max)
+      valid = 1;
+    else
+      printf("Invalid input. Please try again: ");
+  }
+
+  return input;
+}
 
 /**
  * @Description Checks if a player's position on the board exists
  *
  * @param player Total number of player's positions
  * @param token Position on the board based on row and column
- * @return Index if position is found, -1 otherwise
+ * @return index if position is found, -1 otherwise
  */
 int
 elemExists(posSet player, position token)
@@ -69,34 +124,11 @@ elemExists(posSet player, position token)
   return -1;
 }
 
-/**
- * @Description Checks for validity of user's input
- *
- * @param min Lower limit of valid input
- * @param max Upper limit of valid input
- * @return int Input is returned if number is valid
- */
-int
-inputHandler(int min, int max)
-{
-  int input;
-  int valid = 0;
-
-  while (!valid) {
-    scanf("%d", &input);
-    if (input >= min && input <= max)
-      valid = 1;
-    else
-      printf("Invalid input. Please try again: ");
-  }
-
-  return input;
-}
-
-// SET RELATIONSHIP FUNCTIONS - Functions that deal with the correlation of the sets
+// SET RELATIONSHIPS - Functions that deal with the correlation of the sets
 
 /**
- * @Description Union of the set of all possible positions of Player Alpha and actual set of positions of Player Beta
+ * @Description Union of the set of all possible positions of Player Alpha and
+ * actual set of positions of Player Beta
  *
  * @param A All possible positions of Player Alpha
  * @param B Actual set of positions of Player Beta
@@ -126,7 +158,8 @@ setpositionUnion(posSet A, position B)
 }
 
 /**
- * @Description Union of the set of all possible positions between Player Alpha and Player Beta
+ * @Description Union of the set of all possible positions between Player Alpha
+ * and Player Beta
  *
  * @param A All possible positions of Player Alpha
  * @param B All possible positions of Player Beta
@@ -158,7 +191,9 @@ setUnion(posSet A, posSet B)
 }
 
 /**
- * @Description Calculates the difference of the first parameter of the function. Analyzes both sets before grouping all positions that are only found in A.
+ * @Description Calculates the difference of the first parameter of the
+ * function. Analyzes both sets before grouping all positions that are only
+ * found in A.
  *
  * @param A All possible positions of Player Alpha
  * @param B All possible positions of Player Beta
@@ -184,7 +219,9 @@ setDiff(posSet A, posSet B)
 }
 
 /**
- * @Description Calculates the difference of the list of positions and the position set. Analyzes the two and groups all positions that are found in A and not on the list.
+ * @Description Calculates the difference of the list of positions and the
+ * position set. Analyzes the two and groups all positions that are found in A
+ * and not on the list.
  *
  * @param A All possible positions of Player Alpha
  * @param B Actual set of positions of Player Beta
@@ -213,7 +250,8 @@ setpositionDiff(posSet A, position B)
   return AminusB;
 }
 
-// INITIALIZATION - Sets are initialized with their corresponding values before the game starts
+// INITIALIZATION - Sets are initialized with their corresponding values before
+// the game starts
 
 /**
  * @Description Initialize sets with their default values for the game
@@ -274,7 +312,7 @@ initSets()
 /**
  * @Description Initializes all game values with its default setting
  *
- * @return play 
+ * @return play
  */
 play
 initGame()
@@ -294,7 +332,7 @@ initGame()
   return game;
 }
 
-// GAME EVENT FUNCTIONS - Functions that deal with the actual game movements
+// GAME EVENTS - Functions that deal with the actual game movements
 
 /**
  * @Description Checks to see if a position is free during a Player's turn
@@ -302,7 +340,7 @@ initGame()
  * @param game
  * @param next Succeeding move
  * @param prev Previous move
- * @return play 
+ * @return play
  */
 play
 NextPlayerMove(play game, position next, position prev)
@@ -399,7 +437,8 @@ NextPlayerMove(play game, position next, position prev)
 }
 
 /**
- * @Description Checks Player Alpha and Player Beta's pieces and the movement from their starting point to decide who wins the game
+ * @Description Checks Player Alpha and Player Beta's pieces and the movement
+ * from their starting point to decide who wins the game
  *
  * @param game
  * @return play
@@ -549,68 +588,4 @@ displayBoard(play game)
   }
   printf("%s\n", lowerRightCorner);
   printf("  x\n\n");
-}
-
-int
-main()
-{
-  int i;
-  play game;
-  position prev, next;
-
-  game = initGame();
-
-  while (!game.over) {
-
-    displayBoard(game);
-
-    // Player Alpha game set
-    if (game.aTurn == 1) {
-      printf("Player Alpha's Turn!\n\n");
-      printf("Choose a piece to move:\n");
-      for (i = 0; i < game.gameboard.Alpha.posCount; i++) {
-        printf("[%d] (%d, %d)\n",
-               i + 1,
-               game.gameboard.Alpha.posList[i].row,
-               game.gameboard.Alpha.posList[i].col);
-      }
-      printf("\nInput: ");
-      prev = game.gameboard.Alpha
-                 .posList[inputHandler(1, game.gameboard.Alpha.posCount) - 1];
-    }
-
-    // Player Beta game set
-    if (game.aTurn != 1) {
-      printf("Player Beta's Turn!\n\n");
-      printf("Choose a piece to move:\n");
-      for (i = 0; i < game.gameboard.Beta.posCount; i++) {
-        printf("[%d] (%d, %d)\n",
-               i + 1,
-               game.gameboard.Beta.posList[i].row,
-               game.gameboard.Beta.posList[i].col);
-      }
-      printf("\nInput: ");
-      prev = game.gameboard.Beta
-                 .posList[inputHandler(1, game.gameboard.Beta.posCount) - 1];
-    }
-
-    printf("\nWhere would you like to move your piece?\n");
-    printf("x: ");
-    next.row = inputHandler(1, 7);
-    printf("y: ");
-    next.col = inputHandler(1, 5);
-
-    game = NextPlayerMove(game, next, prev);
-    game = GameOver(game);
-  }
-
-  if (game.winner == 'A') {
-    printf("\n\nCongratulations! Player Alpha wins!");
-  }
-
-  if (game.winner == 'B') {
-    printf("\n\nCongratulations! Player Beta wins!");
-  }
-
-  return 0;
 }
