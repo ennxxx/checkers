@@ -21,7 +21,7 @@ typedef struct posSet {
 
 typedef struct sets {
   posSet P; // All positions on the board
-  posSet S; // Diagonally placed positions
+  posSet S; // Positions that can be captured
   posSet E; // Starting position for Alpha
   posSet Y; // Starting position for Beta
 } sets;
@@ -42,6 +42,8 @@ typedef struct play {
 } play;
 
 // SYSTEM CHECKERS - Functions that check on the system states
+
+void bgColor(char b[]);
 
 /**
  * @Description Checks if a player's position on the board exists
@@ -220,8 +222,7 @@ setpositionDiff(posSet A, position B)
   return AminusB;
 }
 
-// INITIALIZATION - Sets are initialized with their corresponding values before
-// the game starts
+// INITIALIZATION - Sets are initialized with their default values
 
 /**
  * @Description Initialize sets with their default values for the game
