@@ -93,10 +93,12 @@ inputHandler(int min, int max)
   return input;
 }
 
-// SET RELATIONSHIP FUNCTIONS - Functions that deal with the correlation of the sets
+// SET RELATIONSHIP FUNCTIONS - Functions that deal with the correlation of the
+// sets
 
 /**
- * @Description Union of the set of all possible positions of Player Alpha and actual set of positions of Player Beta
+ * @Description Union of the set of all possible positions of Player Alpha and
+ * actual set of positions of Player Beta
  *
  * @param A All possible positions of Player Alpha
  * @param B Actual set of positions of Player Beta
@@ -126,7 +128,8 @@ setpositionUnion(posSet A, position B)
 }
 
 /**
- * @Description Union of the set of all possible positions between Player Alpha and Player Beta
+ * @Description Union of the set of all possible positions between Player Alpha
+ * and Player Beta
  *
  * @param A All possible positions of Player Alpha
  * @param B All possible positions of Player Beta
@@ -158,7 +161,9 @@ setUnion(posSet A, posSet B)
 }
 
 /**
- * @Description Calculates the difference of the first parameter of the function. Analyzes both sets before grouping all positions that are only found in A.
+ * @Description Calculates the difference of the first parameter of the
+ * function. Analyzes both sets before grouping all positions that are only
+ * found in A.
  *
  * @param A All possible positions of Player Alpha
  * @param B All possible positions of Player Beta
@@ -184,7 +189,9 @@ setDiff(posSet A, posSet B)
 }
 
 /**
- * @Description Calculates the difference of the list of positions and the position set. Analyzes the two and groups all positions that are found in A and not on the list.
+ * @Description Calculates the difference of the list of positions and the
+ * position set. Analyzes the two and groups all positions that are found in A
+ * and not on the list.
  *
  * @param A All possible positions of Player Alpha
  * @param B Actual set of positions of Player Beta
@@ -213,7 +220,8 @@ setpositionDiff(posSet A, position B)
   return AminusB;
 }
 
-// INITIALIZATION - Sets are initialized with their corresponding values before the game starts
+// INITIALIZATION - Sets are initialized with their corresponding values before
+// the game starts
 
 /**
  * @Description Initialize sets with their default values for the game
@@ -274,7 +282,7 @@ initSets()
 /**
  * @Description Initializes all game values with its default setting
  *
- * @return play 
+ * @return play
  */
 play
 initGame()
@@ -302,7 +310,7 @@ initGame()
  * @param game
  * @param next Succeeding move
  * @param prev Previous move
- * @return play 
+ * @return play
  */
 play
 NextPlayerMove(play game, position next, position prev)
@@ -399,7 +407,8 @@ NextPlayerMove(play game, position next, position prev)
 }
 
 /**
- * @Description Checks Player Alpha and Player Beta's pieces and the movement from their starting point to decide who wins the game
+ * @Description Checks Player Alpha and Player Beta's pieces and the movement
+ * from their starting point to decide who wins the game
  *
  * @param game
  * @return play

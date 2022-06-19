@@ -6,6 +6,13 @@
  **/
 
 #include <stdio.h>
+#include <stdlib.h>
+#ifdef WINDOWS
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #define MAX_ROWS 7
 #define MAX_COLS 5
 
@@ -41,16 +48,85 @@ typedef struct play {
   board gameboard;
 } play;
 
-// SYSTEM CHECKERS - Functions that check on the system states
+// SYSTEM FUNCTIONS - Checks or modifies the system states
 
-void bgColor(char b[]);
+/**
+ * @Description A function thats clears the console depending on the system
+ *
+ */
+void
+clearScreen()
+{
+#ifdef WINDOWS
+  {
+    system("cls");
+  }
+#else
+  {
+    system("clear");
+  }
+#endif
+}
+
+/**
+ * @Description Changes text to a certain color
+ *
+ * @param nColor - An integer that represents a color
+ */
+void
+displayColor(int nColor)
+{
+  switch (nColor) {
+    case 0:
+      printf("\033[0m"); // Reset
+      break;
+    case 1:
+      printf("\033[0;31m"); // Red
+      break;
+    case 2:
+      printf("\033[0;32m"); // Green
+      break;
+    case 3:
+      printf("\033[0;33m"); // Yellow
+      break;
+    case 4:
+      printf("\033[0;35m"); // Purple
+      break;
+    default:
+      break;
+  }
+}
+
+/**
+ * @Description Checks for validity of user's input
+ *
+ * @param min - Lower limit of valid input
+ * @param max - Upper limit of valid input
+ * @return input if number is valid, print statement otherwise
+ */
+int
+inputHandler(int min, int max)
+{
+  int input;
+  int valid = 0;
+
+  while (!valid) {
+    scanf("%d", &input);
+    if (input >= min && input <= max)
+      valid = 1;
+    else
+      printf("\nInvalid input! Please try again: ");
+  }
+
+  return input;
+}
 
 /**
  * @Description Checks if a player's position on the board exists
  *
- * @param player Total number of player's positions
- * @param token Position on the board based on row and column
- * @return Index if position is found, -1 otherwise
+ * @param player - Total number of player's pieces
+ * @param token - Position on the board based on row and column
+ * @return index if position is found, -1 otherwise
  */
 int
 elemExists(posSet player, position token)
@@ -71,40 +147,14 @@ elemExists(posSet player, position token)
   return -1;
 }
 
-/**
- * @Description Checks for validity of user's input
- *
- * @param min Lower limit of valid input
- * @param max Upper limit of valid input
- * @return int Input is returned if number is valid
- */
-int
-inputHandler(int min, int max)
-{
-  int input;
-  int valid = 0;
-
-  while (!valid) {
-    scanf("%d", &input);
-    if (input >= min && input <= max)
-      valid = 1;
-    else
-      printf("Invalid input. Please try again: ");
-  }
-
-  return input;
-}
-
-// SET RELATIONSHIP FUNCTIONS - Functions that deal with the correlation of the
-// sets
+// SET RELATIONSHIPS - Functions that deal with the correlation of the sets
 
 /**
- * @Description Union of the set of all possible positions of Player Alpha and
- * actual set of positions of Player Beta
+ * @Description Adds a position to an existing set
  *
- * @param A All possible positions of Player Alpha
- * @param B Actual set of positions of Player Beta
- * @return AB Returns the union of both sets
+ * @param A - Set of positions
+ * @param B - Position to be added in the set
+ * @return AB or the union of set and position
  */
 posSet
 setpositionUnion(posSet A, position B)
@@ -130,12 +180,12 @@ setpositionUnion(posSet A, position B)
 }
 
 /**
- * @Description Union of the set of all possible positions between Player Alpha
- * and Player Beta
+ * @Description Union of the set of all possible positions
+ *              between both players
  *
- * @param A All possible positions of Player Alpha
- * @param B All possible positions of Player Beta
- * @return posSet Returns the set of positions
+ * @param A - Set 1
+ * @param B - Set 2
+ * @return AB or the union of both sets
  */
 posSet
 setUnion(posSet A, posSet B)
@@ -164,12 +214,12 @@ setUnion(posSet A, posSet B)
 
 /**
  * @Description Calculates the difference of the first parameter of the
- * function. Analyzes both sets before grouping all positions that are only
- * found in A.
+ *              function. Analyzes both sets before grouping all positions
+ *              that are only found in A.
  *
- * @param A All possible positions of Player Alpha
- * @param B All possible positions of Player Beta
- * @return posSet Returns the set of positions
+ * @param A - Set 1
+ * @param B - Set 2
+ * @return AminusB or difference between sets
  */
 posSet
 setDiff(posSet A, posSet B)
@@ -191,13 +241,11 @@ setDiff(posSet A, posSet B)
 }
 
 /**
- * @Description Calculates the difference of the list of positions and the
- * position set. Analyzes the two and groups all positions that are found in A
- * and not on the list.
+ * @Description Removes a position from an existing set
  *
- * @param A All possible positions of Player Alpha
- * @param B Actual set of positions of Player Beta
- * @return posSet Returns the set of positions
+ * @param A - Set of positions
+ * @param B - Position to be removed from the set
+ * @return AminusB or a set with a removed position
  */
 posSet
 setpositionDiff(posSet A, position B)
@@ -227,7 +275,7 @@ setpositionDiff(posSet A, position B)
 /**
  * @Description Initialize sets with their default values for the game
  *
- * @return sets Returns the initialized sets
+ * @return initialized sets
  */
 sets
 initSets()
@@ -283,7 +331,7 @@ initSets()
 /**
  * @Description Initializes all game values with its default setting
  *
- * @return play
+ * @return initialized game values
  */
 play
 initGame()
@@ -307,12 +355,12 @@ initGame()
 // GAME EVENT FUNCTIONS - Functions that deal with the actual game movements
 
 /**
- * @Description Checks to see if a position is free during a Player's turn
+ * @Description Checks what is happening in the game
  *
- * @param game
- * @param next Succeeding move
- * @param prev Previous move
- * @return play
+ * @param game - Struct that contains initialized game values
+ * @param next - Succeeding move
+ * @param prev - Previous move
+ * @return game value
  */
 play
 NextPlayerMove(play game, position next, position prev)
@@ -328,8 +376,11 @@ NextPlayerMove(play game, position next, position prev)
        prev.col == next.col + 1)) {
     game.ok = !(game.ok);
   }
-  else if (game.aTurn)
-    printf("\nThat move is invalid!\n\n");
+  else if (game.aTurn) {
+    displayColor(1);
+    printf("\nWARNING: That move is invalid!");
+    displayColor(0);
+  }
 
   // Check if the next position is free for Beta's turn
   if (!(game.aTurn) && elemExists(game.gameboard.Beta, prev) >= 0 &&
@@ -338,16 +389,21 @@ NextPlayerMove(play game, position next, position prev)
        prev.col == next.col + 1)) {
     game.ok = !(game.ok);
   }
-  else if (!(game.aTurn))
-    printf("\nThat move is invalid!\n\n");
+  else if (!(game.aTurn)) {
+    displayColor(1);
+    printf("\nWARNING: That move is invalid!");
+    displayColor(0);
+  }
 
   // Prints the updated position of Alpha and set Beta's turn
   if (game.ok && game.aTurn && elemExists(game.gameboard.Free, next) >= 0) {
-    printf("\nPlayer Alpha's position: (%d, %d) --> (%d, %d)\n\n",
+    displayColor(4);
+    printf("\nPlayer Alpha: (%d, %d) --> (%d, %d)",
            prev.row,
            prev.col,
            next.row,
            next.col);
+    displayColor(0);
     game.gameboard.Alpha =
         setpositionUnion(setpositionDiff(game.gameboard.Alpha, prev), next);
     game.gameboard.Free =
@@ -358,11 +414,13 @@ NextPlayerMove(play game, position next, position prev)
 
   // Prints the updated position of Beta and set Alpha's turn
   if (game.ok && !(game.aTurn) && elemExists(game.gameboard.Free, next) >= 0) {
-    printf("\nPlayer Beta's position: (%d, %d) --> (%d, %d)\n\n",
+    displayColor(3);
+    printf("\nPlayer Beta: (%d, %d) --> (%d, %d)",
            prev.row,
            prev.col,
            next.row,
            next.col);
+    displayColor(0);
     game.gameboard.Beta =
         setpositionUnion(setpositionDiff(game.gameboard.Beta, prev), next);
     game.gameboard.Free =
@@ -375,14 +433,18 @@ NextPlayerMove(play game, position next, position prev)
   // the move made by Alpha is invalid
   if (game.ok && game.aTurn && elemExists(game.gameboard.Beta, next) >= 0 &&
       elemExists(game.playset.S, next) == -1) {
-    printf("\nThat move is invalid!\n\n");
+    displayColor(1);
+    printf("\nWARNING: (%d, %d) cannot be captured!", next.row, next.col);
+    displayColor(0);
     game.ok = !(game.ok);
   }
 
   // If Alpha moves to a space occupied by Beta, Alpha takes Beta's piece
   if (game.ok && game.aTurn && elemExists(game.gameboard.Beta, next) >= 0 &&
       elemExists(game.playset.S, next) >= 0) {
-    printf("\nOh no! Player Beta's piece was consumed by Player Alpha!\n\n");
+    displayColor(4);
+    printf("\nPlayer Alpha: Captured (%d, %d)", next.row, next.col);
+    displayColor(0);
     game.gameboard.Beta = setpositionDiff(game.gameboard.Beta, next);
     game.gameboard.Alpha =
         setpositionUnion(setpositionDiff(game.gameboard.Alpha, prev), next);
@@ -396,14 +458,18 @@ NextPlayerMove(play game, position next, position prev)
   // the move made by Beta is invalid
   if (game.ok && !(game.aTurn) && elemExists(game.gameboard.Alpha, next) >= 0 &&
       elemExists(game.playset.S, next) == -1) {
-    printf("\n That move is invalid! \n\n");
+    displayColor(1);
+    printf("\nWARNING: (%d, %d) cannot be captured!", next.row, next.col);
+    displayColor(0);
     game.ok = !(game.ok);
   }
 
   // If Beta moves to a space occupied by Alpha, Beta takes Alpha's piece
   if (game.ok && !(game.aTurn) && elemExists(game.gameboard.Alpha, next) >= 0 &&
       elemExists(game.playset.S, next) >= 0) {
-    printf("\nOh no! Player Alpha's piece was consumed by Player Beta!\n\n");
+    displayColor(3);
+    printf("\nPlayer Beta: Captured (%d, %d)", next.row, next.col);
+    displayColor(0);
     game.gameboard.Alpha = setpositionDiff(game.gameboard.Alpha, next);
     game.gameboard.Beta =
         setpositionUnion(setpositionDiff(game.gameboard.Beta, prev), next);
@@ -416,35 +482,38 @@ NextPlayerMove(play game, position next, position prev)
 }
 
 /**
- * @Description Checks Player Alpha and Player Beta's pieces and the movement
- * from their starting point to decide who wins the game
+ * @Description Decides the winner of the game based on the outcome
  *
- * @param game
- * @return play
+ * @param game - Struct that contains initialized game values
+ * @return game value
  */
 play
 GameOver(play game)
 {
-  posSet aSet, bSet;
-
   // If Alpha's pieces exists and are all moved from their starting positions,
   // and the Beta has no more pieces, then Alpha wins
-  aSet = setDiff(game.gameboard.Alpha, game.playset.Y);
-  if (game.gameboard.Beta.posCount == 0 || game.gameboard.Alpha.posCount > 0) {
-    if (aSet.posCount == 0) {
-      game.winner = 'A';
-      game.over = !(game.over);
-    }
+  if (game.gameboard.Beta.posCount == 0 ||
+      game.gameboard.Alpha.posCount > 0 &&
+          setDiff(game.gameboard.Alpha, game.playset.Y).posCount == 0) {
+    game.winner = 'A';
+    game.over = !(game.over);
+  }
+
+  else {
+    game.over = game.over;
   }
 
   // If Beta's pieces exists and are all moved from their starting positions,
   // and the Alpha has no more pieces, then Beta wins
-  bSet = setDiff(game.gameboard.Beta, game.playset.E);
-  if (game.gameboard.Alpha.posCount == 0 || game.gameboard.Beta.posCount > 0) {
-    if (bSet.posCount == 0) {
-      game.winner = 'B';
-      game.over = !(game.over);
-    }
+  if (game.gameboard.Alpha.posCount == 0 ||
+      game.gameboard.Beta.posCount > 0 &&
+          setDiff(game.gameboard.Beta, game.playset.E).posCount == 0) {
+    game.winner = 'B';
+    game.over = !(game.over);
+  }
+
+  else {
+    game.over = game.over;
   }
 
   return game;
@@ -453,7 +522,7 @@ GameOver(play game)
 /**
  * @Description Displays the board of the game
  *
- * @param game
+ * @param game - Struct that contains initialized game values
  */
 void
 displayBoard(play game)
@@ -501,10 +570,11 @@ displayBoard(play game)
   char *T = "\u2533";
   char *cross = "\u254B";
 
-  printf("\n\tLet's Play!\n");
+  printf("\n\n      ★★★ Let's Play! ★★★\n\n");
+  printf("       1   2   3   4   5    y\n");
+  printf("     ");
   printf("%s", topLeftCorner);
-  printf("%s", horizontalBar);
-  for (x = 1; x <= 23; x++) {
+  for (x = 1; x < 20; x++) {
     if (x % 4 == 0) {
       printf("%s", T);
     }
@@ -514,38 +584,38 @@ displayBoard(play game)
   }
   printf("%s\n", topRightCorner);
 
-  printf("%s    %s 1 %s 2 %s 3 %s 4 %s 5 %s  y\n",
-         verticalBar,
-         verticalBar,
-         verticalBar,
-         verticalBar,
-         verticalBar,
-         verticalBar,
-         verticalBar);
-
-  printf("%s", horizontalTRight);
-  for (x = 0; x <= 23; x++) {
-    if (x != 0 && x % 4 == 0) {
-      printf("%s", cross);
-    }
-    else {
-      printf("%s", horizontalBar);
-    }
-  }
-  printf("%s\n", horizontalTLeft);
-
   for (x = 0; x < MAX_ROWS; x++) {
-    printf("%s %d  %s", verticalBar, x + 1, verticalBar);
+    printf("  %d  %s", x + 1, verticalBar);
 
     for (y = 0; y < MAX_COLS; y++) {
-      printf(" %c %s", gameboard[x][y], verticalBar);
+      if (x % 2 == y % 2 && x >= 2 && x <= 4) { // Unsafe Positions
+        displayColor(1);
+        printf(" %c ", gameboard[x][y]);
+        displayColor(0);
+        printf("%s", verticalBar);
+      }
+      else if (x % 2 == y % 2 && x > 4) {
+        displayColor(4);
+        printf(" %c ", gameboard[x][y]);
+        displayColor(0);
+        printf("%s", verticalBar);
+      }
+      else if (x % 2 == y % 2 && x < 2) {
+        displayColor(3);
+        printf(" %c ", gameboard[x][y]);
+        displayColor(0);
+        printf("%s", verticalBar);
+      }
+      else // Free Positions
+        printf(" %c %s", gameboard[x][y], verticalBar);
     }
     printf("\n");
 
     if (x < 6) {
+      printf("     ");
       printf("%s", horizontalTRight);
-      for (y = 0; y <= 23; y++) {
-        if (y != 0 && y % 4 == 0) {
+      for (y = 1; y < 20; y++) {
+        if (y % 4 == 0) {
           printf("%s", cross);
         }
         else {
@@ -556,9 +626,10 @@ displayBoard(play game)
     }
   }
 
+  printf("     ");
   printf("%s", lowerLeftCorner);
-  for (x = 0; x < 24; x++) {
-    if (x != 0 && x % 4 == 0) {
+  for (x = 1; x < 20; x++) {
+    if (x % 4 == 0) {
       printf("%s", upsideDownT);
     }
     else {
@@ -578,13 +649,17 @@ main()
 
   game = initGame();
 
-  while (!game.over) {
+  while (game.over == 0) {
 
+    usleep(500000);
+    clearScreen();
     displayBoard(game);
 
     // Player Alpha game set
     if (game.aTurn == 1) {
+      displayColor(4);
       printf("Player Alpha's Turn!\n\n");
+      displayColor(0);
       printf("Choose a piece to move:\n");
       for (i = 0; i < game.gameboard.Alpha.posCount; i++) {
         printf("[%d] (%d, %d)\n",
@@ -599,7 +674,9 @@ main()
 
     // Player Beta game set
     if (game.aTurn != 1) {
+      displayColor(3);
       printf("Player Beta's Turn!\n\n");
+      displayColor(0);
       printf("Choose a piece to move:\n");
       for (i = 0; i < game.gameboard.Beta.posCount; i++) {
         printf("[%d] (%d, %d)\n",
@@ -623,11 +700,15 @@ main()
   }
 
   if (game.winner == 'A') {
-    printf("\n\nCongratulations! Player Alpha wins!");
+    displayColor(2);
+    printf("\nCongratulations! Player Alpha wins!\n\n");
+    displayColor(0);
   }
 
   if (game.winner == 'B') {
-    printf("\n\nCongratulations! Player Beta wins!");
+    displayColor(2);
+    printf("\nCongratulations! Player Beta wins!\n\n");
+    displayColor(0);
   }
 
   return 0;
