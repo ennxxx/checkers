@@ -588,20 +588,8 @@ displayBoard(play game)
     printf("  %d  %s", x + 1, verticalBar);
 
     for (y = 0; y < MAX_COLS; y++) {
-      if (x % 2 == y % 2 && x >= 2 && x <= 4) { // Unsafe Positions
+      if (x % 2 == y % 2) { // Unsafe Positions
         displayColor(1);
-        printf(" %c ", gameboard[x][y]);
-        displayColor(0);
-        printf("%s", verticalBar);
-      }
-      else if (x % 2 == y % 2 && x > 4) {
-        displayColor(4);
-        printf(" %c ", gameboard[x][y]);
-        displayColor(0);
-        printf("%s", verticalBar);
-      }
-      else if (x % 2 == y % 2 && x < 2) {
-        displayColor(3);
         printf(" %c ", gameboard[x][y]);
         displayColor(0);
         printf("%s", verticalBar);
